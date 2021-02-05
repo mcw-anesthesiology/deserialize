@@ -73,7 +73,7 @@ pub trait FromCsv {
             .collect())
     }
 
-    fn from_tsv_reader<R>(reader: R) -> Result<Vec<Self>, csv::Error>
+    fn from_tsv_reader<R>(reader: R) -> Result<Vec<Self>, crate::Error>
     where
         Self: Sized + DeserializeOwned,
         R: Read,
@@ -116,6 +116,32 @@ pub mod zero_one_bool {
         serializer.serialize_str(match val {
             true => "1",
             false => "0",
+        })
+    }
+}
+
+pub mod yes_no_bool {
+    use serde::{self, Deserialize, Deserializer, Serializer};
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<bool, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        match s.as_ref() {
+            "Yes" => Ok(true),
+            "No" => Ok(false),
+            _ => Err(serde::de::Error::custom("Not yes or no")),
+        }
+    }
+
+    pub fn serialize<S>(val: &bool, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(match val {
+            true => "Yes",
+            false => "No",
         })
     }
 }
