@@ -73,7 +73,7 @@ pub trait FromCsv {
             .collect())
     }
 
-    fn from_tsv_reader<R>(reader: R) -> Result<Vec<Self>, crate::Error>
+    fn from_tsv_reader<R>(reader: R) -> Result<Vec<Self>, csv::Error>
     where
         Self: Sized + DeserializeOwned,
         R: Read,
@@ -142,6 +142,88 @@ pub mod yes_no_bool {
         serializer.serialize_str(match val {
             true => "Yes",
             false => "No",
+        })
+    }
+}
+
+pub mod nullable_yes_no_bool {
+    use serde::{self, Deserialize, Deserializer, Serializer};
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<bool>, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        match s.as_ref() {
+            "Yes" => Ok(Some(true)),
+            "No" => Ok(Some(false)),
+            "" | "NA" => Ok(None),
+            _ => Err(serde::de::Error::custom("Not yes or no")),
+        }
+    }
+
+    pub fn serialize<S>(val: &Option<bool>, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(match val {
+            Some(true) => "Yes",
+            Some(false) => "No",
+            None => "",
+        })
+    }
+}
+
+pub mod true_false_bool {
+    use serde::{self, Deserialize, Deserializer, Serializer};
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<bool, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        match s.as_ref() {
+            "True" => Ok(true),
+            "False" => Ok(false),
+            _ => Err(serde::de::Error::custom("Not true or false")),
+        }
+    }
+
+    pub fn serialize<S>(val: &bool, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(match val {
+            true => "True",
+            false => "False",
+        })
+    }
+}
+
+pub mod nullable_true_false_bool {
+    use serde::{self, Deserialize, Deserializer, Serializer};
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<bool>, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        match s.as_ref() {
+            "True" => Ok(Some(true)),
+            "False" => Ok(Some(false)),
+            "" | "NA" => Ok(None),
+            _ => Err(serde::de::Error::custom("Not true or false or empty/NA")),
+        }
+    }
+
+    pub fn serialize<S>(val: &Option<bool>, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(match val {
+            Some(true) => "True",
+            Some(false) => "False",
+            None => "",
         })
     }
 }
