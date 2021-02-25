@@ -15,7 +15,7 @@ pub trait FromCsv {
             .deserialize()
             .filter_map(|r| {
                 r.map_err(|err| {
-                    eprintln!("Failed deserializing record: {}", &err);
+                    eprintln!("Failed deserializing record: {:?}", &err);
                     err
                 })
                 .ok()
@@ -42,7 +42,7 @@ pub trait FromCsv {
                             .deserialize(byte_headers.as_ref())
                             .or_else(|err| {
                                 eprintln!(
-                                    "Failed deserializing record, attempting lossy: {}",
+                                    "Failed deserializing record, attempting lossy: {:?}",
                                     &err
                                 );
 
@@ -65,7 +65,7 @@ pub trait FromCsv {
             .deserialize()
             .filter_map(|r| {
                 r.map_err(|err| {
-                    eprintln!("Failed deserializing record: {}", &err);
+                    eprintln!("Failed deserializing record: {:?}", &err);
                     err
                 })
                 .ok()
@@ -342,7 +342,9 @@ pub mod timeless_mm_dd_yyyy_date {
         D: Deserializer<'de>,
     {
         let s = String::deserialize(deserializer)?;
-        NaiveDate::parse_from_str(&s, FORMAT).map_err(serde::de::Error::custom)
+        let trimmed = s.trim();
+        NaiveDate::parse_from_str(trimmed, FORMAT)
+            .map_err(|e| serde::de::Error::custom(format!("invalid date: {} {:?}", trimmed, e)))
     }
 }
 
@@ -351,13 +353,17 @@ pub mod mm_dd_yyyy_date {
     use serde::{self, Deserialize, Deserializer};
 
     const FORMAT: &'static str = "%m/%d/%Y %H:%M:%S";
+    const ALT_FORMAT: &'static str = "%m/%d/%Y %k:%M:%S";
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<NaiveDate, D::Error>
     where
         D: Deserializer<'de>,
     {
         let s = String::deserialize(deserializer)?;
-        NaiveDate::parse_from_str(&s, FORMAT).map_err(serde::de::Error::custom)
+        let trimmed = s.trim();
+        NaiveDate::parse_from_str(trimmed, FORMAT)
+            .or_else(|_| NaiveDate::parse_from_str(trimmed, ALT_FORMAT))
+            .map_err(|e| serde::de::Error::custom(format!("invalid date: {} {:?}", trimmed, e)))
     }
 }
 
@@ -366,13 +372,18 @@ pub mod mm_dd_yyyy_datetime {
     use serde::{self, Deserialize, Deserializer};
 
     const FORMAT: &'static str = "%m/%d/%Y %H:%M:%S";
+    const ALT_FORMAT: &'static str = "%m/%d/%Y %k:%M:%S";
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<NaiveDateTime, D::Error>
     where
         D: Deserializer<'de>,
     {
         let s = String::deserialize(deserializer)?;
-        NaiveDateTime::parse_from_str(&s, FORMAT).map_err(serde::de::Error::custom)
+        let trimmed = s.trim();
+
+        NaiveDateTime::parse_from_str(trimmed, FORMAT)
+            .or_else(|_| NaiveDateTime::parse_from_str(trimmed, ALT_FORMAT))
+            .map_err(|e| serde::de::Error::custom(format!("invalid datetime: {} {:?}", trimmed, e)))
     }
 }
 
@@ -381,13 +392,17 @@ pub mod mm_dd_yyyy_date_opt {
     use serde::{self, Deserialize, Deserializer};
 
     const FORMAT: &'static str = "%m/%d/%Y %H:%M:%S";
+    const ALT_FORMAT: &'static str = "%m/%d/%Y %k:%M:%S";
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<NaiveDate>, D::Error>
     where
         D: Deserializer<'de>,
     {
         let s = String::deserialize(deserializer)?;
-        Ok(NaiveDate::parse_from_str(&s, FORMAT).ok())
+        let trimmed = s.trim();
+        Ok(NaiveDate::parse_from_str(trimmed, FORMAT)
+            .or_else(|_| NaiveDate::parse_from_str(trimmed, ALT_FORMAT))
+            .ok())
     }
 }
 
@@ -396,13 +411,17 @@ pub mod mm_dd_yyyy_datetime_opt {
     use serde::{self, Deserialize, Deserializer};
 
     const FORMAT: &'static str = "%m/%d/%Y %H:%M:%S";
+    const ALT_FORMAT: &'static str = "%m/%d/%Y %k:%M:%S";
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<NaiveDateTime>, D::Error>
     where
         D: Deserializer<'de>,
     {
         let s = String::deserialize(deserializer)?;
-        Ok(NaiveDateTime::parse_from_str(&s, FORMAT).ok())
+        let trimmed = s.trim();
+        Ok(NaiveDateTime::parse_from_str(trimmed, FORMAT)
+            .or_else(|_| NaiveDateTime::parse_from_str(trimmed, ALT_FORMAT))
+            .ok())
     }
 }
 
@@ -417,7 +436,8 @@ pub mod yyyy_mm_dd_datetime {
         D: Deserializer<'de>,
     {
         let s = String::deserialize(deserializer)?;
-        NaiveDateTime::parse_from_str(&s, FORMAT).map_err(serde::de::Error::custom)
+        NaiveDateTime::parse_from_str(&s, FORMAT)
+            .map_err(|e| serde::de::Error::custom(format!("invalid datetime: {} {:?}", s, e)))
     }
 }
 
@@ -479,7 +499,7 @@ pub mod mssql_date {
         let s = String::deserialize(deserializer)?;
         NaiveDateTime::parse_from_str(&s, FORMAT)
             .map(|dt| dt.date())
-            .map_err(serde::de::Error::custom)
+            .map_err(|e| serde::de::Error::custom(format!("invalid date: {} {:?}", s, e)))
     }
 }
 
@@ -494,7 +514,8 @@ pub mod mssql_datetime {
         D: Deserializer<'de>,
     {
         let s = String::deserialize(deserializer)?;
-        NaiveDateTime::parse_from_str(&s, FORMAT).map_err(serde::de::Error::custom)
+        NaiveDateTime::parse_from_str(&s, FORMAT)
+            .map_err(|e| serde::de::Error::custom(format!("invalid datetime: {} {:?}", s, e)))
     }
 }
 
