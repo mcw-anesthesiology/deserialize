@@ -303,6 +303,41 @@ pub mod nullable_bool {
     }
 }
 
+pub mod nullable_int_bool {
+    use serde::{self, Deserialize, Deserializer, Serializer};
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<bool>, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        i32::deserialize(deserializer)
+            .map(|i| match i {
+                1 => Some(true),
+                0 => Some(false),
+                _ => None,
+            })
+            .or(Ok(None))
+    }
+
+    pub fn serialize<S>(val: &Option<bool>, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(match val {
+            Some(true) => "1",
+            Some(false) => "0",
+            _ => "",
+        })
+    }
+
+    pub fn default_true() -> Option<bool> {
+        Some(true)
+    }
+    pub fn default_false() -> Option<bool> {
+        Some(false)
+    }
+}
+
 pub mod nullable_string {
     use serde::{self, Deserialize, Deserializer};
 
