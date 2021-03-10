@@ -209,8 +209,8 @@ pub mod nullable_true_false_bool {
     {
         let s = String::deserialize(deserializer)?;
         match s.as_ref() {
-            "True" => Ok(Some(true)),
-            "False" => Ok(Some(false)),
+            "1" | "true" | "True" => Ok(Some(true)),
+            "0" | "false" | "False" => Ok(Some(false)),
             "" | "NA" => Ok(None),
             _ => Err(serde::de::Error::custom("Not true or false or empty/NA")),
         }
@@ -389,6 +389,7 @@ pub mod mm_dd_yyyy_date {
 
     const FORMAT: &'static str = "%m/%d/%Y %H:%M:%S";
     const ALT_FORMAT: &'static str = "%m/%d/%Y %k:%M:%S";
+    const OTHER_ALT_FORMAT: &'static str = "%m/%d/%y %k:%M";
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<NaiveDate, D::Error>
     where
@@ -398,6 +399,7 @@ pub mod mm_dd_yyyy_date {
         let trimmed = s.trim();
         NaiveDate::parse_from_str(trimmed, FORMAT)
             .or_else(|_| NaiveDate::parse_from_str(trimmed, ALT_FORMAT))
+            .or_else(|_| NaiveDate::parse_from_str(trimmed, OTHER_ALT_FORMAT))
             .map_err(|e| serde::de::Error::custom(format!("invalid date: {} {:?}", trimmed, e)))
     }
 }
@@ -408,6 +410,7 @@ pub mod mm_dd_yyyy_datetime {
 
     const FORMAT: &'static str = "%m/%d/%Y %H:%M:%S";
     const ALT_FORMAT: &'static str = "%m/%d/%Y %k:%M:%S";
+    const OTHER_ALT_FORMAT: &'static str = "%m/%d/%y %k:%M";
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<NaiveDateTime, D::Error>
     where
@@ -418,6 +421,7 @@ pub mod mm_dd_yyyy_datetime {
 
         NaiveDateTime::parse_from_str(trimmed, FORMAT)
             .or_else(|_| NaiveDateTime::parse_from_str(trimmed, ALT_FORMAT))
+            .or_else(|_| NaiveDateTime::parse_from_str(trimmed, OTHER_ALT_FORMAT))
             .map_err(|e| serde::de::Error::custom(format!("invalid datetime: {} {:?}", trimmed, e)))
     }
 }
@@ -428,6 +432,7 @@ pub mod mm_dd_yyyy_date_opt {
 
     const FORMAT: &'static str = "%m/%d/%Y %H:%M:%S";
     const ALT_FORMAT: &'static str = "%m/%d/%Y %k:%M:%S";
+    const OTHER_ALT_FORMAT: &'static str = "%m/%d/%y %k:%M";
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<NaiveDate>, D::Error>
     where
@@ -437,6 +442,7 @@ pub mod mm_dd_yyyy_date_opt {
         let trimmed = s.trim();
         Ok(NaiveDate::parse_from_str(trimmed, FORMAT)
             .or_else(|_| NaiveDate::parse_from_str(trimmed, ALT_FORMAT))
+            .or_else(|_| NaiveDate::parse_from_str(trimmed, OTHER_ALT_FORMAT))
             .ok())
     }
 }
@@ -447,6 +453,7 @@ pub mod mm_dd_yyyy_datetime_opt {
 
     const FORMAT: &'static str = "%m/%d/%Y %H:%M:%S";
     const ALT_FORMAT: &'static str = "%m/%d/%Y %k:%M:%S";
+    const OTHER_ALT_FORMAT: &'static str = "%m/%d/%y %k:%M";
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<NaiveDateTime>, D::Error>
     where
@@ -456,6 +463,7 @@ pub mod mm_dd_yyyy_datetime_opt {
         let trimmed = s.trim();
         Ok(NaiveDateTime::parse_from_str(trimmed, FORMAT)
             .or_else(|_| NaiveDateTime::parse_from_str(trimmed, ALT_FORMAT))
+            .or_else(|_| NaiveDateTime::parse_from_str(trimmed, OTHER_ALT_FORMAT))
             .ok())
     }
 }
