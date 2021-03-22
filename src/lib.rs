@@ -310,13 +310,11 @@ pub mod nullable_int_bool {
     where
         D: Deserializer<'de>,
     {
-        i32::deserialize(deserializer)
-            .map(|i| match i {
-                1 => Some(true),
-                0 => Some(false),
-                _ => None,
-            })
-            .or(Ok(None))
+        i32::deserialize(deserializer).map(|i| match i {
+            1 => Some(true),
+            0 => Some(false),
+            _ => None,
+        })
     }
 
     pub fn serialize<S>(val: &Option<bool>, serializer: S) -> Result<S::Ok, S::Error>
