@@ -501,7 +501,7 @@ pub mod va_datetime {
     use chrono::NaiveDateTime;
     use serde::{self, Deserialize, Deserializer};
 
-    const FORMAT: &'static str = "%m/%d/%Y %H:%M";
+    const FORMAT: &'static str = "%m/%d/%Y %I:%M:%S %p";
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<NaiveDateTime, D::Error>
     where
@@ -516,7 +516,7 @@ pub mod va_datetime_opt {
     use chrono::NaiveDateTime;
     use serde::{self, Deserialize, Deserializer};
 
-    const FORMAT: &'static str = "%m/%d/%Y %H:%M";
+    const FORMAT: &'static str = "%m/%d/%Y %I:%M:%S %p";
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<NaiveDateTime>, D::Error>
     where
