@@ -386,8 +386,8 @@ pub mod mm_dd_yyyy_date {
     use serde::{self, Deserialize, Deserializer};
 
     const FORMAT: &'static str = "%m/%d/%Y %H:%M:%S";
-    const ALT_FORMAT: &'static str = "%m/%d/%Y %k:%M:%S";
-    const OTHER_ALT_FORMAT: &'static str = "%m/%d/%y %k:%M";
+    const ALT_FORMAT: &'static str = "%m/%d/%Y %H:%M:%S";
+    const OTHER_ALT_FORMAT: &'static str = "%m/%d/%y %H:%M";
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<NaiveDate, D::Error>
     where
@@ -407,8 +407,8 @@ pub mod mm_dd_yyyy_datetime {
     use serde::{self, Deserialize, Deserializer};
 
     const FORMAT: &'static str = "%m/%d/%Y %H:%M:%S";
-    const ALT_FORMAT: &'static str = "%m/%d/%Y %k:%M:%S";
-    const OTHER_ALT_FORMAT: &'static str = "%m/%d/%y %k:%M";
+    const ALT_FORMAT: &'static str = "%m/%d/%Y %H:%M:%S";
+    const OTHER_ALT_FORMAT: &'static str = "%m/%d/%y %H:%M";
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<NaiveDateTime, D::Error>
     where
@@ -429,8 +429,8 @@ pub mod mm_dd_yyyy_date_opt {
     use serde::{self, Deserialize, Deserializer};
 
     const FORMAT: &'static str = "%m/%d/%Y %H:%M:%S";
-    const ALT_FORMAT: &'static str = "%m/%d/%Y %k:%M:%S";
-    const OTHER_ALT_FORMAT: &'static str = "%m/%d/%y %k:%M";
+    const ALT_FORMAT: &'static str = "%m/%d/%Y %H:%M:%S";
+    const OTHER_ALT_FORMAT: &'static str = "%m/%d/%y %H:%M";
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<NaiveDate>, D::Error>
     where
@@ -450,8 +450,8 @@ pub mod mm_dd_yyyy_datetime_opt {
     use serde::{self, Deserialize, Deserializer};
 
     const FORMAT: &'static str = "%m/%d/%Y %H:%M:%S";
-    const ALT_FORMAT: &'static str = "%m/%d/%Y %k:%M:%S";
-    const OTHER_ALT_FORMAT: &'static str = "%m/%d/%y %k:%M";
+    const ALT_FORMAT: &'static str = "%m/%d/%Y %H:%M:%S";
+    const OTHER_ALT_FORMAT: &'static str = "%m/%d/%y %H:%M";
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<NaiveDateTime>, D::Error>
     where
