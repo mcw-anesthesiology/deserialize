@@ -336,6 +336,22 @@ pub mod nullable_int_bool {
     }
 }
 
+pub mod nonempty_string {
+    use serde::{self, de::Error, Deserialize, Deserializer};
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<String, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        if s.is_empty() {
+            Err(D::Error::custom("field cannot be empty"))
+        } else {
+            Ok(s)
+        }
+    }
+}
+
 pub mod nullable_string {
     use serde::{self, Deserialize, Deserializer};
 
