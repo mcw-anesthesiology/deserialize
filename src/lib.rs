@@ -183,8 +183,8 @@ pub mod true_false_bool {
     {
         let s = String::deserialize(deserializer)?;
         match s.as_ref() {
-            "True" => Ok(true),
-            "False" => Ok(false),
+            "True" | "true" => Ok(true),
+            "False" | "false" => Ok(false),
             _ => Err(serde::de::Error::custom("Not true or false")),
         }
     }
