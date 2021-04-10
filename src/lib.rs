@@ -1,8 +1,7 @@
 use csv::StringRecord;
 use serde::de::DeserializeOwned;
 
-use std::io::Read;
-use std::path::Path;
+use std::{io::Read, path::Path};
 
 pub trait FromCsv {
     fn from_csv_reader<R>(reader: R) -> Result<Vec<Self>, csv::Error>
@@ -630,6 +629,25 @@ pub mod nullable_field {
         T: Deserialize<'de>,
     {
         Ok(T::deserialize(deserializer).ok())
+    }
+}
+
+pub mod possibly_empty_parseable_value {
+    use serde::{self, Deserialize, Deserializer};
+    use std::{fmt::Display, str::FromStr};
+
+    pub fn deserialize<'de, D, T>(deserializer: D) -> Result<Option<T>, D::Error>
+    where
+        D: Deserializer<'de>,
+        T: FromStr,
+        T::Err: Display,
+    {
+        let s = String::deserialize(deserializer)?;
+        if s.is_empty() {
+            Ok(None)
+        } else {
+            Ok(Some(T::from_str(&s).map_err(serde::de::Error::custom)?))
+        }
     }
 }
 
