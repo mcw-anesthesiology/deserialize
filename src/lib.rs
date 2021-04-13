@@ -1,5 +1,5 @@
 use csv::StringRecord;
-use serde::de::DeserializeOwned;
+use serde::{de::DeserializeOwned, Deserialize, Deserializer};
 
 use std::{io::Read, path::Path};
 
@@ -739,5 +739,32 @@ where
         serializer.serialize_str("")
     } else {
         serializer.serialize_i32(*val)
+    }
+}
+
+#[derive(Debug, Deserialize)]
+pub struct XmlEnumWrapper<T> {
+    #[serde(rename = "$value")]
+    inner: T,
+}
+
+impl<T> XmlEnumWrapper<T> {
+    pub fn deserialize_inner<'de, D>(deserializer: D) -> Result<T, D::Error>
+    where
+        D: Deserializer<'de>,
+        T: Deserialize<'de> + std::fmt::Debug,
+    {
+        let wrapper = Self::deserialize(deserializer)?;
+        Ok(wrapper.inner)
+    }
+
+    pub fn deserialize_nullable_inner<'de, D>(deserializer: D) -> Result<Option<T>, D::Error>
+    where
+        D: Deserializer<'de>,
+        T: Deserialize<'de> + std::fmt::Debug,
+    {
+        Self::deserialize(deserializer)
+            .map(|wrapper| Some(wrapper.inner))
+            .or(Ok(None))
     }
 }
