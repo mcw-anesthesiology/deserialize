@@ -402,7 +402,7 @@ pub mod mm_dd_yyyy_date {
 
     const FORMAT: &'static str = "%m/%d/%Y %H:%M:%S";
     const ALT_FORMAT: &'static str = "%m/%d/%Y %H:%M:%S";
-    const OTHER_ALT_FORMAT: &'static str = "%m/%d/%y %H:%M";
+    const OTHER_ALT_FORMAT: &'static str = "%m/%d/%Y %H:%M";
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<NaiveDate, D::Error>
     where
@@ -423,7 +423,7 @@ pub mod mm_dd_yyyy_datetime {
 
     const FORMAT: &'static str = "%m/%d/%Y %H:%M:%S";
     const ALT_FORMAT: &'static str = "%m/%d/%Y %H:%M:%S";
-    const OTHER_ALT_FORMAT: &'static str = "%m/%d/%y %H:%M";
+    const OTHER_ALT_FORMAT: &'static str = "%m/%d/%Y %H:%M";
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<NaiveDateTime, D::Error>
     where
@@ -445,7 +445,7 @@ pub mod mm_dd_yyyy_date_opt {
 
     const FORMAT: &'static str = "%m/%d/%Y %H:%M:%S";
     const ALT_FORMAT: &'static str = "%m/%d/%Y %H:%M:%S";
-    const OTHER_ALT_FORMAT: &'static str = "%m/%d/%y %H:%M";
+    const OTHER_ALT_FORMAT: &'static str = "%m/%d/%Y %H:%M";
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<NaiveDate>, D::Error>
     where
@@ -466,7 +466,7 @@ pub mod mm_dd_yyyy_datetime_opt {
 
     const FORMAT: &'static str = "%m/%d/%Y %H:%M:%S";
     const ALT_FORMAT: &'static str = "%m/%d/%Y %H:%M:%S";
-    const OTHER_ALT_FORMAT: &'static str = "%m/%d/%y %H:%M";
+    const OTHER_ALT_FORMAT: &'static str = "%m/%d/%Y %H:%M";
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<NaiveDateTime>, D::Error>
     where
