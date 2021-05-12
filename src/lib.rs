@@ -379,6 +379,23 @@ pub mod semi_separated_list {
     }
 }
 
+pub mod mm_dd_yy_date {
+    use chrono::NaiveDate;
+    use serde::{self, Deserialize, Deserializer};
+
+    const FORMAT: &'static str = "%m/%d/%y";
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<NaiveDate, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        let trimmed = s.trim();
+        NaiveDate::parse_from_str(trimmed, FORMAT)
+            .map_err(|e| serde::de::Error::custom(format!("invalid date: {} {:?}", trimmed, e)))
+    }
+}
+
 pub mod timeless_mm_dd_yyyy_date {
     use chrono::NaiveDate;
     use serde::{self, Deserialize, Deserializer};
