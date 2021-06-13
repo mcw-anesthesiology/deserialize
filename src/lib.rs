@@ -531,6 +531,22 @@ pub mod nullable_yyyy_mm_dd_datetime {
     }
 }
 
+pub mod hhmm_time {
+    use chrono::NaiveTime;
+    use serde::{Deserialize, Deserializer};
+
+    const FORMAT: &'static str = "%H%M";
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<NaiveTime, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        NaiveTime::parse_from_str(&s, FORMAT)
+            .map_err(|e| serde::de::Error::custom(format!("invalid time: {} {:?}", s, e)))
+    }
+}
+
 pub mod va_datetime {
     use chrono::NaiveDateTime;
     use serde::{self, Deserialize, Deserializer};
@@ -747,6 +763,18 @@ pub mod enum_from_id_or_default {
         &'a T: Into<i32>,
     {
         serializer.serialize_i32(val.into())
+    }
+}
+
+pub mod line_separated {
+    use serde::{Deserialize, Deserializer};
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<Vec<String>, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        Ok(s.lines().map(|s| s.to_string()).collect())
     }
 }
 
