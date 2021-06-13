@@ -778,6 +778,18 @@ pub mod line_separated {
     }
 }
 
+pub mod comma_separated {
+    use serde::{Deserialize, Deserializer};
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<Vec<String>, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        Ok(s.split(',').map(|s| s.trim().to_string()).collect())
+    }
+}
+
 pub fn serialize_id_empty<S>(val: &i32, serializer: S) -> Result<S::Ok, S::Error>
 where
     S: serde::Serializer,
