@@ -386,6 +386,7 @@ pub mod mm_dd_yy_date {
     use serde::{self, Deserialize, Deserializer};
 
     const FORMAT: &'static str = "%m/%d/%y";
+    const ALT_FORMAT: &'static str = "%m/%d/%Y";
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<NaiveDate, D::Error>
     where
@@ -394,6 +395,7 @@ pub mod mm_dd_yy_date {
         let s = String::deserialize(deserializer)?;
         let trimmed = s.trim();
         NaiveDate::parse_from_str(trimmed, FORMAT)
+            .or_else(|_| NaiveDate::parse_from_str(trimmed, ALT_FORMAT))
             .map_err(|e| serde::de::Error::custom(format!("invalid date: {} {:?}", trimmed, e)))
     }
 }
@@ -774,7 +776,11 @@ pub mod line_separated {
         D: Deserializer<'de>,
     {
         let s = String::deserialize(deserializer)?;
-        Ok(s.lines().map(|s| s.to_string()).collect())
+        if s.is_empty() {
+            Ok(Vec::new())
+        } else {
+            Ok(s.lines().map(|s| s.to_string()).collect())
+        }
     }
 }
 
@@ -786,7 +792,11 @@ pub mod comma_separated {
         D: Deserializer<'de>,
     {
         let s = String::deserialize(deserializer)?;
-        Ok(s.split(',').map(|s| s.trim().to_string()).collect())
+        if s.is_empty() {
+            Ok(Vec::new())
+        } else {
+            Ok(s.split(',').map(|s| s.trim().to_string()).collect())
+        }
     }
 }
 
