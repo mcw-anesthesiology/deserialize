@@ -554,13 +554,18 @@ pub mod va_datetime {
     use serde::{self, Deserialize, Deserializer};
 
     const FORMAT: &'static str = "%m/%d/%Y %I:%M:%S %p";
+    const ALT_FORMAT: &'static str = "%m/%d/%Y %H:%M:%S";
+    const OTHER_ALT_FORMAT: &'static str = "%m/%d/%Y %H:%M";
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<NaiveDateTime, D::Error>
     where
         D: Deserializer<'de>,
     {
         let s = String::deserialize(deserializer)?;
-        NaiveDateTime::parse_from_str(&s, FORMAT).map_err(serde::de::Error::custom)
+        NaiveDateTime::parse_from_str(&s, FORMAT)
+            .or_else(|_| NaiveDateTime::parse_from_str(&s, ALT_FORMAT))
+            .or_else(|_| NaiveDateTime::parse_from_str(&s, OTHER_ALT_FORMAT))
+            .map_err(|e| serde::de::Error::custom(format!("invalid date: {} {:?}", s, e)))
     }
 }
 
@@ -569,13 +574,18 @@ pub mod va_datetime_opt {
     use serde::{self, Deserialize, Deserializer};
 
     const FORMAT: &'static str = "%m/%d/%Y %I:%M:%S %p";
+    const ALT_FORMAT: &'static str = "%m/%d/%Y %H:%M:%S";
+    const OTHER_ALT_FORMAT: &'static str = "%m/%d/%Y %H:%M";
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<NaiveDateTime>, D::Error>
     where
         D: Deserializer<'de>,
     {
         let s = String::deserialize(deserializer)?;
-        Ok(NaiveDateTime::parse_from_str(&s, FORMAT).ok())
+        Ok(NaiveDateTime::parse_from_str(&s, FORMAT)
+            .or_else(|_| NaiveDateTime::parse_from_str(&s, ALT_FORMAT))
+            .or_else(|_| NaiveDateTime::parse_from_str(&s, OTHER_ALT_FORMAT))
+            .ok())
     }
 }
 
