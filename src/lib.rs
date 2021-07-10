@@ -22,11 +22,11 @@ pub trait FromCsv {
             .collect())
     }
 
-    fn from_bytes(bytes: &Vec<u8>) -> Result<Vec<Self>, csv::Error>
+    fn from_bytes(bytes: &[u8]) -> Result<Vec<Self>, csv::Error>
     where
         Self: Sized + DeserializeOwned + std::fmt::Debug,
     {
-        let mut rdr = csv::Reader::from_reader(bytes.as_slice());
+        let mut rdr = csv::Reader::from_reader(bytes);
         let byte_headers = rdr.byte_headers().ok().cloned();
         let string_headers = byte_headers
             .clone()
@@ -377,7 +377,7 @@ pub mod semi_separated_list {
     {
         let s = String::deserialize(deserializer)?;
 
-        Ok(s.split(";").map(|s| s.to_owned()).collect())
+        Ok(s.split(';').map(|s| s.to_owned()).collect())
     }
 }
 
@@ -385,8 +385,8 @@ pub mod mm_dd_yy_date {
     use chrono::NaiveDate;
     use serde::{self, Deserialize, Deserializer};
 
-    const FORMAT: &'static str = "%m/%d/%y";
-    const ALT_FORMAT: &'static str = "%m/%d/%Y";
+    const FORMAT: &str = "%m/%d/%y";
+    const ALT_FORMAT: &str = "%m/%d/%Y";
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<NaiveDate, D::Error>
     where
@@ -404,7 +404,7 @@ pub mod timeless_mm_dd_yyyy_date {
     use chrono::NaiveDate;
     use serde::{self, Deserialize, Deserializer};
 
-    const FORMAT: &'static str = "%m/%d/%Y";
+    const FORMAT: &str = "%m/%d/%Y";
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<NaiveDate, D::Error>
     where
@@ -421,9 +421,9 @@ pub mod mm_dd_yyyy_date {
     use chrono::NaiveDate;
     use serde::{self, Deserialize, Deserializer};
 
-    const FORMAT: &'static str = "%m/%d/%Y %H:%M:%S";
-    const ALT_FORMAT: &'static str = "%m/%d/%Y %H:%M";
-    const OTHER_ALT_FORMAT: &'static str = "%m/%d/%y %H:%M";
+    const FORMAT: &str = "%m/%d/%Y %H:%M:%S";
+    const ALT_FORMAT: &str = "%m/%d/%Y %H:%M";
+    const OTHER_ALT_FORMAT: &str = "%m/%d/%y %H:%M";
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<NaiveDate, D::Error>
     where
@@ -442,9 +442,9 @@ pub mod mm_dd_yyyy_datetime {
     use chrono::NaiveDateTime;
     use serde::{self, Deserialize, Deserializer};
 
-    const FORMAT: &'static str = "%m/%d/%Y %H:%M:%S";
-    const ALT_FORMAT: &'static str = "%m/%d/%Y %H:%M";
-    const OTHER_ALT_FORMAT: &'static str = "%m/%d/%y %H:%M";
+    const FORMAT: &str = "%m/%d/%Y %H:%M:%S";
+    const ALT_FORMAT: &str = "%m/%d/%Y %H:%M";
+    const OTHER_ALT_FORMAT: &str = "%m/%d/%y %H:%M";
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<NaiveDateTime, D::Error>
     where
@@ -464,9 +464,9 @@ pub mod mm_dd_yyyy_date_opt {
     use chrono::NaiveDate;
     use serde::{self, Deserialize, Deserializer};
 
-    const FORMAT: &'static str = "%m/%d/%Y %H:%M:%S";
-    const ALT_FORMAT: &'static str = "%m/%d/%Y %H:%M";
-    const OTHER_ALT_FORMAT: &'static str = "%m/%d/%y %H:%M";
+    const FORMAT: &str = "%m/%d/%Y %H:%M:%S";
+    const ALT_FORMAT: &str = "%m/%d/%Y %H:%M";
+    const OTHER_ALT_FORMAT: &str = "%m/%d/%y %H:%M";
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<NaiveDate>, D::Error>
     where
@@ -485,9 +485,9 @@ pub mod mm_dd_yyyy_datetime_opt {
     use chrono::NaiveDateTime;
     use serde::{self, Deserialize, Deserializer};
 
-    const FORMAT: &'static str = "%m/%d/%Y %H:%M:%S";
-    const ALT_FORMAT: &'static str = "%m/%d/%Y %H:%M";
-    const OTHER_ALT_FORMAT: &'static str = "%m/%d/%y %H:%M";
+    const FORMAT: &str = "%m/%d/%Y %H:%M:%S";
+    const ALT_FORMAT: &str = "%m/%d/%Y %H:%M";
+    const OTHER_ALT_FORMAT: &str = "%m/%d/%y %H:%M";
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<NaiveDateTime>, D::Error>
     where
@@ -506,7 +506,7 @@ pub mod yyyy_mm_dd_datetime {
     use chrono::NaiveDateTime;
     use serde::{self, Deserialize, Deserializer};
 
-    const FORMAT: &'static str = "%Y-%m-%d %H:%M:%S";
+    const FORMAT: &str = "%Y-%m-%d %H:%M:%S";
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<NaiveDateTime, D::Error>
     where
@@ -522,7 +522,7 @@ pub mod nullable_yyyy_mm_dd_datetime {
     use chrono::NaiveDateTime;
     use serde::{self, Deserialize, Deserializer};
 
-    const FORMAT: &'static str = "%Y-%m-%d %H:%M:%S";
+    const FORMAT: &str = "%Y-%m-%d %H:%M:%S";
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<NaiveDateTime>, D::Error>
     where
@@ -537,7 +537,7 @@ pub mod hhmm_time {
     use chrono::NaiveTime;
     use serde::{Deserialize, Deserializer};
 
-    const FORMAT: &'static str = "%H%M";
+    const FORMAT: &str = "%H%M";
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<NaiveTime, D::Error>
     where
@@ -553,9 +553,9 @@ pub mod va_datetime {
     use chrono::NaiveDateTime;
     use serde::{self, Deserialize, Deserializer};
 
-    const FORMAT: &'static str = "%m/%d/%Y %I:%M:%S %p";
-    const ALT_FORMAT: &'static str = "%m/%d/%Y %H:%M:%S";
-    const OTHER_ALT_FORMAT: &'static str = "%m/%d/%Y %H:%M";
+    const FORMAT: &str = "%m/%d/%Y %I:%M:%S %p";
+    const ALT_FORMAT: &str = "%m/%d/%Y %H:%M:%S";
+    const OTHER_ALT_FORMAT: &str = "%m/%d/%Y %H:%M";
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<NaiveDateTime, D::Error>
     where
@@ -573,9 +573,9 @@ pub mod va_datetime_opt {
     use chrono::NaiveDateTime;
     use serde::{self, Deserialize, Deserializer};
 
-    const FORMAT: &'static str = "%m/%d/%Y %I:%M:%S %p";
-    const ALT_FORMAT: &'static str = "%m/%d/%Y %H:%M:%S";
-    const OTHER_ALT_FORMAT: &'static str = "%m/%d/%Y %H:%M";
+    const FORMAT: &str = "%m/%d/%Y %I:%M:%S %p";
+    const ALT_FORMAT: &str = "%m/%d/%Y %H:%M:%S";
+    const OTHER_ALT_FORMAT: &str = "%m/%d/%Y %H:%M";
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<NaiveDateTime>, D::Error>
     where
@@ -593,7 +593,7 @@ pub mod mssql_date {
     use chrono::{NaiveDate, NaiveDateTime};
     use serde::{self, Deserialize, Deserializer};
 
-    const FORMAT: &'static str = "%Y-%m-%d %H:%M:%S.%3f";
+    const FORMAT: &str = "%Y-%m-%d %H:%M:%S.%3f";
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<NaiveDate, D::Error>
     where
@@ -610,7 +610,7 @@ pub mod mssql_datetime {
     use chrono::NaiveDateTime;
     use serde::{self, Deserialize, Deserializer};
 
-    const FORMAT: &'static str = "%Y-%m-%d %H:%M:%S.%3f";
+    const FORMAT: &str = "%Y-%m-%d %H:%M:%S.%3f";
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<NaiveDateTime, D::Error>
     where
@@ -626,7 +626,7 @@ pub mod nullable_mssql_datetime {
     use chrono::NaiveDateTime;
     use serde::{self, Deserialize, Deserializer};
 
-    const FORMAT: &'static str = "%Y-%m-%d %H:%M:%S.%3f";
+    const FORMAT: &str = "%Y-%m-%d %H:%M:%S.%3f";
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<NaiveDateTime>, D::Error>
     where
