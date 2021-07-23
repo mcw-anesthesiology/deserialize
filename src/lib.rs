@@ -128,8 +128,8 @@ pub mod yes_no_bool {
     {
         let s = String::deserialize(deserializer)?;
         match s.as_ref() {
-            "Yes" => Ok(true),
-            "No" => Ok(false),
+            "Yes" | "Y" => Ok(true),
+            "No" | "N" => Ok(false),
             _ => Err(serde::de::Error::custom("Not yes or no")),
         }
     }
