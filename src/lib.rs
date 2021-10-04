@@ -538,6 +538,7 @@ pub mod hhmm_time {
     use serde::{Deserialize, Deserializer};
 
     const FORMAT: &str = "%H%M";
+    const ALT_FORMAT: &str = "%H:%M";
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<NaiveTime, D::Error>
     where
@@ -545,6 +546,7 @@ pub mod hhmm_time {
     {
         let s = String::deserialize(deserializer)?;
         NaiveTime::parse_from_str(&s, FORMAT)
+            .or_else(|_| NaiveTime::parse_from_str(&s, ALT_FORMAT))
             .map_err(|e| serde::de::Error::custom(format!("invalid time: {} {:?}", s, e)))
     }
 }
