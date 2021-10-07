@@ -253,7 +253,7 @@ pub mod non_null_bool {
 }
 
 pub mod zero_one_int_bool {
-    use serde::{self, Deserialize, Deserializer};
+    use serde::{self, Deserialize, Deserializer, Serializer};
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<bool, D::Error>
     where
@@ -265,6 +265,16 @@ pub mod zero_one_int_bool {
             0 => Ok(false),
             _ => Err(serde::de::Error::custom("Not one or zero")),
         }
+    }
+
+    pub fn serialize<S>(val: &bool, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_u8(match val {
+            true => 1,
+            false => 0,
+        })
     }
 }
 
@@ -369,7 +379,7 @@ pub mod nullable_string {
 }
 
 pub mod semi_separated_list {
-    use serde::{self, Deserialize, Deserializer};
+    use serde::{self, Deserialize, Deserializer, Serializer};
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<Vec<String>, D::Error>
     where
@@ -379,11 +389,18 @@ pub mod semi_separated_list {
 
         Ok(s.split(';').map(|s| s.to_owned()).collect())
     }
+
+    pub fn serialize<S>(val: &Vec<String>, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&val.join(";"))
+    }
 }
 
 pub mod mm_dd_yy_date {
     use chrono::NaiveDate;
-    use serde::{self, Deserialize, Deserializer};
+    use serde::{self, Deserialize, Deserializer, Serializer};
 
     const FORMAT: &str = "%m/%d/%y";
     const ALT_FORMAT: &str = "%m/%d/%Y";
@@ -398,11 +415,18 @@ pub mod mm_dd_yy_date {
             .or_else(|_| NaiveDate::parse_from_str(trimmed, ALT_FORMAT))
             .map_err(|e| serde::de::Error::custom(format!("invalid date: {} {:?}", trimmed, e)))
     }
+
+    pub fn serialize<S>(val: &NaiveDate, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&val.format(FORMAT).to_string())
+    }
 }
 
 pub mod timeless_mm_dd_yyyy_date {
     use chrono::NaiveDate;
-    use serde::{self, Deserialize, Deserializer};
+    use serde::{self, Deserialize, Deserializer, Serializer};
 
     const FORMAT: &str = "%m/%d/%Y";
 
@@ -415,11 +439,18 @@ pub mod timeless_mm_dd_yyyy_date {
         NaiveDate::parse_from_str(trimmed, FORMAT)
             .map_err(|e| serde::de::Error::custom(format!("invalid date: {} {:?}", trimmed, e)))
     }
+
+    pub fn serialize<S>(val: &NaiveDate, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&val.format(FORMAT).to_string())
+    }
 }
 
 pub mod mm_dd_yyyy_date {
     use chrono::NaiveDate;
-    use serde::{self, Deserialize, Deserializer};
+    use serde::{self, Deserialize, Deserializer, Serializer};
 
     const FORMAT: &str = "%m/%d/%Y %H:%M:%S";
     const ALT_FORMAT: &str = "%m/%d/%Y %H:%M";
@@ -436,11 +467,18 @@ pub mod mm_dd_yyyy_date {
             .or_else(|_| NaiveDate::parse_from_str(trimmed, OTHER_ALT_FORMAT))
             .map_err(|e| serde::de::Error::custom(format!("invalid date: {} {:?}", trimmed, e)))
     }
+
+    pub fn serialize<S>(val: &NaiveDate, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&val.format(FORMAT).to_string())
+    }
 }
 
 pub mod mm_dd_yyyy_datetime {
     use chrono::NaiveDateTime;
-    use serde::{self, Deserialize, Deserializer};
+    use serde::{self, Deserialize, Deserializer, Serializer};
 
     const FORMAT: &str = "%m/%d/%Y %H:%M:%S";
     const ALT_FORMAT: &str = "%m/%d/%Y %H:%M";
@@ -458,11 +496,18 @@ pub mod mm_dd_yyyy_datetime {
             .or_else(|_| NaiveDateTime::parse_from_str(trimmed, OTHER_ALT_FORMAT))
             .map_err(|e| serde::de::Error::custom(format!("invalid datetime: {} {:?}", trimmed, e)))
     }
+
+    pub fn serialize<S>(val: &NaiveDateTime, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&val.format(FORMAT).to_string())
+    }
 }
 
 pub mod mm_dd_yyyy_date_opt {
     use chrono::NaiveDate;
-    use serde::{self, Deserialize, Deserializer};
+    use serde::{self, Deserialize, Deserializer, Serializer};
 
     const FORMAT: &str = "%m/%d/%Y %H:%M:%S";
     const ALT_FORMAT: &str = "%m/%d/%Y %H:%M";
@@ -479,11 +524,18 @@ pub mod mm_dd_yyyy_date_opt {
             .or_else(|_| NaiveDate::parse_from_str(trimmed, OTHER_ALT_FORMAT))
             .ok())
     }
+
+    pub fn serialize<S>(val: &NaiveDate, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&val.format(FORMAT).to_string())
+    }
 }
 
 pub mod mm_dd_yyyy_datetime_opt {
     use chrono::NaiveDateTime;
-    use serde::{self, Deserialize, Deserializer};
+    use serde::{self, Deserialize, Deserializer, Serializer};
 
     const FORMAT: &str = "%m/%d/%Y %H:%M:%S";
     const ALT_FORMAT: &str = "%m/%d/%Y %H:%M";
@@ -500,11 +552,18 @@ pub mod mm_dd_yyyy_datetime_opt {
             .or_else(|_| NaiveDateTime::parse_from_str(trimmed, OTHER_ALT_FORMAT))
             .ok())
     }
+
+    pub fn serialize<S>(val: &NaiveDateTime, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&val.format(FORMAT).to_string())
+    }
 }
 
 pub mod yyyy_mm_dd_datetime {
     use chrono::NaiveDateTime;
-    use serde::{self, Deserialize, Deserializer};
+    use serde::{self, Deserialize, Deserializer, Serializer};
 
     const FORMAT: &str = "%Y-%m-%d %H:%M:%S";
 
@@ -516,11 +575,18 @@ pub mod yyyy_mm_dd_datetime {
         NaiveDateTime::parse_from_str(&s, FORMAT)
             .map_err(|e| serde::de::Error::custom(format!("invalid datetime: {} {:?}", s, e)))
     }
+
+    pub fn serialize<S>(val: &NaiveDateTime, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&val.format(FORMAT).to_string())
+    }
 }
 
 pub mod nullable_yyyy_mm_dd_datetime {
     use chrono::NaiveDateTime;
-    use serde::{self, Deserialize, Deserializer};
+    use serde::{self, Deserialize, Deserializer, Serializer};
 
     const FORMAT: &str = "%Y-%m-%d %H:%M:%S";
 
@@ -531,11 +597,18 @@ pub mod nullable_yyyy_mm_dd_datetime {
         let s = String::deserialize(deserializer)?;
         Ok(NaiveDateTime::parse_from_str(&s, FORMAT).ok())
     }
+
+    pub fn serialize<S>(val: &NaiveDateTime, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&val.format(FORMAT).to_string())
+    }
 }
 
 pub mod hhmm_time {
     use chrono::NaiveTime;
-    use serde::{Deserialize, Deserializer};
+    use serde::{Deserialize, Deserializer, Serializer};
 
     const FORMAT: &str = "%H%M";
     const ALT_FORMAT: &str = "%H:%M";
@@ -549,11 +622,18 @@ pub mod hhmm_time {
             .or_else(|_| NaiveTime::parse_from_str(&s, ALT_FORMAT))
             .map_err(|e| serde::de::Error::custom(format!("invalid time: {} {:?}", s, e)))
     }
+
+    pub fn serialize<S>(val: &NaiveTime, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&val.format(FORMAT).to_string())
+    }
 }
 
 pub mod va_datetime {
     use chrono::NaiveDateTime;
-    use serde::{self, Deserialize, Deserializer};
+    use serde::{self, Deserialize, Deserializer, Serializer};
 
     const FORMAT: &str = "%m/%d/%Y %I:%M:%S %p";
     const ALT_FORMAT: &str = "%m/%d/%Y %H:%M:%S";
@@ -569,11 +649,18 @@ pub mod va_datetime {
             .or_else(|_| NaiveDateTime::parse_from_str(&s, OTHER_ALT_FORMAT))
             .map_err(|e| serde::de::Error::custom(format!("invalid date: {} {:?}", s, e)))
     }
+
+    pub fn serialize<S>(val: &NaiveDateTime, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&val.format(FORMAT).to_string())
+    }
 }
 
 pub mod va_datetime_opt {
     use chrono::NaiveDateTime;
-    use serde::{self, Deserialize, Deserializer};
+    use serde::{self, Deserialize, Deserializer, Serializer};
 
     const FORMAT: &str = "%m/%d/%Y %I:%M:%S %p";
     const ALT_FORMAT: &str = "%m/%d/%Y %H:%M:%S";
@@ -588,6 +675,13 @@ pub mod va_datetime_opt {
             .or_else(|_| NaiveDateTime::parse_from_str(&s, ALT_FORMAT))
             .or_else(|_| NaiveDateTime::parse_from_str(&s, OTHER_ALT_FORMAT))
             .ok())
+    }
+
+    pub fn serialize<S>(val: &NaiveDateTime, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&val.format(FORMAT).to_string())
     }
 }
 
@@ -610,7 +704,7 @@ pub mod mssql_date {
 
 pub mod mssql_datetime {
     use chrono::NaiveDateTime;
-    use serde::{self, Deserialize, Deserializer};
+    use serde::{self, Deserialize, Deserializer, Serializer};
 
     const FORMAT: &str = "%Y-%m-%d %H:%M:%S.%3f";
 
@@ -622,11 +716,18 @@ pub mod mssql_datetime {
         NaiveDateTime::parse_from_str(&s, FORMAT)
             .map_err(|e| serde::de::Error::custom(format!("invalid datetime: {} {:?}", s, e)))
     }
+
+    pub fn serialize<S>(val: &NaiveDateTime, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&val.format(FORMAT).to_string())
+    }
 }
 
 pub mod nullable_mssql_datetime {
     use chrono::NaiveDateTime;
-    use serde::{self, Deserialize, Deserializer};
+    use serde::{self, Deserialize, Deserializer, Serializer};
 
     const FORMAT: &str = "%Y-%m-%d %H:%M:%S.%3f";
 
@@ -637,10 +738,17 @@ pub mod nullable_mssql_datetime {
         let s = String::deserialize(deserializer)?;
         Ok(NaiveDateTime::parse_from_str(&s, FORMAT).ok())
     }
+
+    pub fn serialize<S>(val: &NaiveDateTime, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&val.format(FORMAT).to_string())
+    }
 }
 
 pub mod currency {
-    use serde::{self, Deserialize, Deserializer};
+    use serde::{self, Deserialize, Deserializer, Serializer};
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<f64, D::Error>
     where
@@ -650,10 +758,17 @@ pub mod currency {
         s = s.trim().replace(&['$', ','] as &[_], "");
         s.parse::<f64>().map_err(serde::de::Error::custom)
     }
+
+    pub fn serialize<S>(val: &f64, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&format!("${:.2}", val))
+    }
 }
 
 pub mod currency_opt {
-    use serde::{self, Deserialize, Deserializer};
+    use serde::{self, Deserialize, Deserializer, Serializer};
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<f64>, D::Error>
     where
@@ -666,6 +781,13 @@ pub mod currency_opt {
             s = s.trim().replace(&['$', ','] as &[_], "");
             Ok(Some(s.parse::<f64>().map_err(serde::de::Error::custom)?))
         }
+    }
+
+    pub fn serialize<S>(val: &Option<f64>, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&val.map(|val| format!("${:.2}", val)).unwrap_or_default())
     }
 }
 
@@ -781,7 +903,7 @@ pub mod enum_from_id_or_default {
 }
 
 pub mod line_separated {
-    use serde::{Deserialize, Deserializer};
+    use serde::{Deserialize, Deserializer, Serializer};
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<Vec<String>, D::Error>
     where
@@ -794,10 +916,17 @@ pub mod line_separated {
             Ok(s.lines().map(|s| s.to_string()).collect())
         }
     }
+
+    pub fn serialize<S>(val: &Vec<String>, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&val.join("\n"))
+    }
 }
 
 pub mod comma_separated {
-    use serde::{Deserialize, Deserializer};
+    use serde::{Deserialize, Deserializer, Serializer};
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<Vec<String>, D::Error>
     where
@@ -809,6 +938,13 @@ pub mod comma_separated {
         } else {
             Ok(s.split(',').map(|s| s.trim().to_string()).collect())
         }
+    }
+
+    pub fn serialize<S>(val: &Vec<String>, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&val.join(","))
     }
 }
 
