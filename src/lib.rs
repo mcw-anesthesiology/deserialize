@@ -3,6 +3,12 @@ use serde::{de::DeserializeOwned, Deserialize, Deserializer};
 
 use std::{io::Read, path::Path};
 
+#[cfg(feature = "calamine")]
+mod excel;
+
+#[cfg(feature = "calamine")]
+pub use excel::*;
+
 pub trait FromCsv {
     fn from_csv_reader<R>(reader: R) -> Result<Vec<Self>, csv::Error>
     where
