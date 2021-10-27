@@ -1,17 +1,37 @@
-use calamine::DataType;
+use calamine::{open_workbook, DataType, Reader, Xlsx};
 use chrono::{NaiveDate, NaiveDateTime, NaiveTime};
 use serde::{
     de::{Deserialize, DeserializeOwned, Error},
     Deserializer,
 };
 
-use std::{convert::AsRef, path::Path};
+use std::{
+    convert::AsRef,
+    io::{Read, Seek},
+    path::Path,
+};
 
 pub trait FromXlsx {
-    fn from_xlsx<P>(path: P) -> Result<Vec<Self>, calamine::Error>
+    fn from_xlsx_reader<RS>(reader: RS) -> Result<Vec<Self>, calamine::Error>
     where
         Self: Sized + DeserializeOwned,
-        P: AsRef<Path>;
+        RS: Read + Seek,
+    {
+        Self::from_xlsx(Xlsx::new(reader)?)
+    }
+
+    fn from_xlsx_path<P>(path: P) -> Result<Vec<Self>, calamine::Error>
+    where
+        Self: Sized + DeserializeOwned,
+        P: AsRef<Path>,
+    {
+        Self::from_xlsx(open_workbook(path)?)
+    }
+
+    fn from_xlsx<RS>(workbook: Xlsx<RS>) -> Result<Vec<Self>, calamine::Error>
+    where
+        Self: Sized + DeserializeOwned,
+        RS: Read + Seek;
 }
 
 // Excel apparently considers 1900 to be a leap year
