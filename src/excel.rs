@@ -28,10 +28,27 @@ pub trait FromXlsx {
         Self::from_xlsx(open_workbook(path)?)
     }
 
-    fn from_xlsx<RS>(workbook: Xlsx<RS>) -> Result<Vec<Self>, calamine::Error>
+    fn from_xlsx<RS>(mut workbook: Xlsx<RS>) -> Result<Vec<Self>, calamine::Error>
     where
         Self: Sized + DeserializeOwned,
-        RS: Read + Seek;
+        RS: Read + Seek,
+    {
+        let range = workbook
+            .worksheet_range_at(0)
+            .ok_or(calamine::Error::Msg("sheet not found"))??;
+
+        Ok(range
+            .deserialize()?
+            .filter_map(|result| {
+                result
+                    .map_err(|e| {
+                        eprintln!("failed deserializing record: {:?}", e);
+                        e
+                    })
+                    .ok()
+            })
+            .collect())
+    }
 }
 
 // Excel apparently considers 1900 to be a leap year
@@ -138,6 +155,60 @@ pub mod excel_datetime_opt {
                         .and_time(NaiveTime::from_num_seconds_from_midnight(secs, 0)),
                 ))
             }
+            x => Err(Error::custom(format!("invalid datetime: {:?}", x))),
+        }
+    }
+}
+
+pub mod excel_time {
+    use super::*;
+
+    const TIME_FORMAT: &str = "%r";
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<NaiveTime, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let data_type = DataType::deserialize(deserializer)?;
+        match data_type {
+            DataType::String(s) => NaiveTime::parse_from_str(&s, TIME_FORMAT)
+                .map_err(|err| Error::custom(format!("invalid time: {:?}", err))),
+            DataType::Float(f) => {
+                let time = f.fract() * 24.0 * 60.0 * 60.0;
+                let secs = time.round() as u32;
+                Ok(NaiveTime::from_num_seconds_from_midnight(secs, 0))
+            }
+            x => Err(Error::custom(format!("invalid datetime: {:?}", x))),
+        }
+    }
+}
+
+pub mod excel_time_opt {
+    use super::*;
+
+    const TIME_FORMAT: &str = "%r";
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<NaiveTime>, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let data_type = DataType::deserialize(deserializer)?;
+        match data_type {
+            DataType::String(s) => {
+                if s.is_empty() {
+                    Ok(None)
+                } else {
+                    Ok(Some(NaiveTime::parse_from_str(&s, TIME_FORMAT).map_err(
+                        |err| Error::custom(format!("invalid time: {:?}", err)),
+                    )?))
+                }
+            }
+            DataType::Float(f) => {
+                let time = f.fract() * 24.0 * 60.0 * 60.0;
+                let secs = time.round() as u32;
+                Ok(Some(NaiveTime::from_num_seconds_from_midnight(secs, 0)))
+            }
+            DataType::Empty => Ok(None),
             x => Err(Error::custom(format!("invalid datetime: {:?}", x))),
         }
     }
